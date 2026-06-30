@@ -1,5 +1,10 @@
 # Ultracite Code Standards
 
+## Project Core Summary
+
+本项目是 Daily Bloom/betterHub，一个以 React + Tailwind 前端、Hono/tRPC 后端、Better Auth 认证和 PostgreSQL/Drizzle 数据层构建的轻量级任务管理应用，核心体验覆盖登录注册、今日任务、完成进度和新增任务。
+本次项目交付以 AWS 云端部署为主，主要技术栈参考 ProcessOn《[半中心化前端架构部署方案](https://www.processon.com/view/link/62e77f4f7d9c08072e6eea09)》：前端静态资源与 Web 应用优先面向 AWS 托管/CDN 分发，服务端 API、认证、数据库与后续云资源按 AWS 云上架构进行规划和集成。
+
 This project uses **Ultracite**, a zero-config preset that enforces strict code quality standards through automated formatting and linting.
 
 ## Quick Reference
