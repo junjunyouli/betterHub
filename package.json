@@ -1,0 +1,36 @@
+{
+  "name": "betterHub",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "type": "module",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "check-types": "turbo run check-types",
+    "dev:web": "turbo run dev -F web",
+    "dev:server": "turbo run dev -F server",
+    "db:push": "turbo run db:push -F @betterHub/db",
+    "db:studio": "turbo run db:studio -F @betterHub/db",
+    "db:generate": "turbo run db:generate -F @betterHub/db",
+    "db:migrate": "turbo run db:migrate -F @betterHub/db",
+    "check": "ultracite check",
+    "fix": "ultracite fix"
+  },
+  "dependencies": {
+    "@betterHub/env": "*",
+    "dotenv": "^17.2.2",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@betterHub/config": "*",
+    "@biomejs/biome": "2.4.16",
+    "@types/node": "^22.13.14",
+    "turbo": "^2.9.16",
+    "typescript": "^6",
+    "ultracite": "7.8.3"
+  },
+  "packageManager": "npm@10.9.4"
+}
