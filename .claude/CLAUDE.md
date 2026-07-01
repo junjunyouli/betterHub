@@ -5,6 +5,24 @@
 本项目是 Daily Bloom/betterHub，一个以 React + Tailwind 前端、Hono/tRPC 后端、Better Auth 认证和 PostgreSQL/Drizzle 数据层构建的轻量级任务管理应用，核心体验覆盖登录注册、今日任务、完成进度和新增任务。
 本次项目交付以 AWS 云端部署为主，主要技术栈参考 ProcessOn《[半中心化前端架构部署方案](https://www.processon.com/view/link/62e77f4f7d9c08072e6eea09)》：前端静态资源与 Web 应用优先面向 AWS 托管/CDN 分发，服务端 API、认证、数据库与后续云资源按 AWS 云上架构进行规划和集成。
 
+## AWS Architecture Resources
+
+- S3：用于前端静态资源、构建产物和公共资源托管。
+- API Gateway：用于统一暴露后端 API 入口，承接前端到服务端的请求流量。
+- EC2：用于承载 Node/Hono 服务端运行环境，适合需要完整服务器控制权的部署方式。
+- Lightsail：用于简化版云服务器部署，可作为中小规模服务端或演示环境承载方案。
+- Aurora and RDS：用于 PostgreSQL 关系型数据存储，承载用户、认证、任务等核心业务数据。
+- Secrets Manager：用于管理数据库连接、Better Auth 密钥、API 密钥等敏感配置。
+- Key Management Service：用于密钥管理和数据加密能力，支撑数据库、密钥和服务间安全访问。
+- IAM Identity Center：用于 AWS 云端访问身份、账号权限和团队成员登录管理。
+- Amazon EventBridge：用于后续任务提醒、异步事件、定时任务和跨服务事件集成。
+- Amazon Bedrock：用于后续 AI 能力接入，例如智能任务建议、自然语言任务生成和内容总结。
+- Amazon Q：用于 AWS 云上问答、架构辅助和服务使用建议。
+- Amazon Q Business：用于企业知识问答和业务资料检索场景。
+- Amazon Q Developer：用于开发辅助、代码建议、云资源排查和 AWS 集成开发支持。
+- Amazon Q Developer in chat applications：用于在聊天应用中接入开发辅助、告警分析和团队协作问答。
+- 账单与成本管理：用于跟踪 AWS 资源成本、预算、用量和后续成本优化。
+
 This project uses **Ultracite**, a zero-config preset that enforces strict code quality standards through automated formatting and linting.
 
 ## Quick Reference

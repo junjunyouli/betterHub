@@ -1,252 +1,415 @@
-<!DOCTYPE html><html class="light" lang="en"><head>
-<meta charset="utf-8">
-<meta content="width=device-width, initial-scale=1.0" name="viewport">
-<title>Daily Bloom - Tasks</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@100..900&amp;display=swap" rel="stylesheet">
-<style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
-        }
-        .task-card-enter {
-            animation: slideUp 0.5s ease-out forwards;
-        }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .glass-header {
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-        }
-    </style>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "surface-container": "#eceeef",
-                        "outline-variant": "#bccac1",
-                        "tertiary-fixed-dim": "#b7cbc6",
-                        "surface": "#f8fafb",
-                        "tertiary": "#50625e",
-                        "surface-bright": "#f8fafb",
-                        "surface-container-highest": "#e1e3e4",
-                        "on-secondary-fixed-variant": "#004d65",
-                        "surface-dim": "#d8dadb",
-                        "primary": "#006c4d",
-                        "primary-container": "#3eb489",
-                        "tertiary-container": "#92a5a1",
-                        "secondary-container": "#98deff",
-                        "surface-container-low": "#f2f4f5",
-                        "on-tertiary-fixed-variant": "#394a47",
-                        "on-background": "#191c1d",
-                        "on-primary-fixed-variant": "#005139",
-                        "error": "#ba1a1a",
-                        "secondary-fixed": "#bee9ff",
-                        "inverse-surface": "#2e3132",
-                        "outline": "#6d7a72",
-                        "background": "#f8fafb",
-                        "on-error-container": "#93000a",
-                        "primary-fixed": "#86f8c8",
-                        "tertiary-fixed": "#d3e7e2",
-                        "on-tertiary": "#ffffff",
-                        "on-surface-variant": "#3d4943",
-                        "surface-tint": "#006c4d",
-                        "surface-container-high": "#e6e8e9",
-                        "inverse-on-surface": "#eff1f2",
-                        "on-secondary": "#ffffff",
-                        "on-surface": "#191c1d",
-                        "secondary": "#0d6683",
-                        "on-primary-container": "#00402d",
-                        "surface-container-lowest": "#ffffff",
-                        "surface-variant": "#e1e3e4",
-                        "on-secondary-container": "#056380",
-                        "primary-fixed-dim": "#69dbad",
-                        "on-tertiary-fixed": "#0d1f1c",
-                        "on-tertiary-container": "#2a3b38",
-                        "secondary-fixed-dim": "#8ad0f1",
-                        "inverse-primary": "#69dbad",
-                        "on-error": "#ffffff",
-                        "error-container": "#ffdad6",
-                        "on-primary-fixed": "#002115",
-                        "on-secondary-fixed": "#001f2a",
-                        "on-primary": "#ffffff"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "full": "9999px"
-                    },
-                    "spacing": {
-                        "xl": "32px",
-                        "gutter": "16px",
-                        "md": "16px",
-                        "base": "4px",
-                        "lg": "24px",
-                        "xs": "4px",
-                        "margin-mobile": "20px",
-                        "sm": "8px"
-                    },
-                    "fontFamily": {
-                        "body-sm": ["Plus Jakarta Sans"],
-                        "headline-lg-mobile": ["Plus Jakarta Sans"],
-                        "label-sm": ["Plus Jakarta Sans"],
-                        "body-md": ["Plus Jakarta Sans"],
-                        "label-md": ["Plus Jakarta Sans"],
-                        "body-lg": ["Plus Jakarta Sans"],
-                        "headline-lg": ["Plus Jakarta Sans"],
-                        "headline-xl": ["Plus Jakarta Sans"]
-                    },
-                    "fontSize": {
-                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
-                        "headline-lg-mobile": ["22px", {"lineHeight": "28px", "fontWeight": "600"}],
-                        "label-sm": ["10px", {"lineHeight": "14px", "fontWeight": "500"}],
-                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
-                        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600"}],
-                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
-                        "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
-                        "headline-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
-                    }
-                },
-            },
-        }
-    </script>
-</head>
-<body class="bg-background text-on-background min-h-screen font-body-md">
-<!-- Top Navigation Bar -->
-<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md flex justify-between items-center px-margin-mobile py-sm">
-<div class="flex items-center gap-3">
-<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed overflow-hidden border-2 border-primary-container/20">
-<img alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQpfA8vq0DnVptuwKzqn_MVJeUDa7fCQW_1PR4xvdF3WxBhMVRJYffJeAT1-hKWJ71nAuAy2-xW--fXwVoiyA8n7EbN1nR8ZPk9LC1SEwZrEDwZ1BixU4NdyS4SYnANtIe8-naXzi6FqOUH31nhtMv9Ofd-xM9FFzRcgppTTcj7E86xK4-5UOLP82BwxKqBn_3hYP-ZKmAimPoLcJZ2Nk8_M5qySTfSb0B59zzAZQQMT7cGvYCkXXOe2_cBnOp4zvN-xvUwS8fhwk">
-</div>
-<span class="font-headline-lg-mobile text-headline-lg-mobile font-semibold text-primary">Daily Bloom</span>
-</div>
-<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors">
-<span class="material-symbols-outlined text-on-surface-variant">settings</span>
-</button>
-</header>
-<main class="pt-24 px-margin-mobile max-w-2xl mx-auto">
-<!-- Welcome Section -->
-<section class="mb-xl">
-<h1 class="font-headline-xl text-headline-xl text-on-background mb-base">Good morning, User!</h1>
-<p class="font-body-lg text-body-lg text-on-surface-variant">You're making great progress today.</p>
-</section>
-<!-- Progress Card -->
-<section class="bg-surface-container-lowest p-lg rounded-xl mb-xl shadow-[0_16px_32px_rgba(0,108,77,0.04)]">
-<div class="flex justify-between items-end mb-sm">
-<div>
-<span class="font-label-md text-label-md text-primary uppercase tracking-wider">Daily Goal</span>
-<h3 class="font-headline-lg-mobile text-headline-lg-mobile">75% Completed</h3>
-</div>
-<span class="font-body-sm text-body-sm text-on-surface-variant">6 of 8 tasks</span>
-</div>
-<div class="w-full h-3 bg-surface-container rounded-full overflow-hidden">
-<div class="h-full bg-primary-container rounded-full transition-all duration-700 ease-out" style="width: 75%; filter: none;"></div>
-</div>
-</section>
-<!-- Task List Header -->
-<div class="flex justify-between items-center mb-md">
-<h2 class="font-headline-lg-mobile text-headline-lg-mobile">Today's Tasks</h2>
-<button class="font-label-md text-label-md text-primary hover:opacity-80 transition-opacity px-md py-xs rounded-full bg-primary-fixed/30">Edit</button>
-</div>
-<!-- Task Items -->
-<div class="space-y-md">
-<!-- Task 1 -->
-<div class="task-card-enter bg-surface-container-lowest p-md rounded-xl flex items-center gap-md shadow-[0_8px_16px_rgba(0,108,77,0.02)] group hover:shadow-[0_12px_24px_rgba(0,108,77,0.06)] transition-all">
-<button class="w-6 h-6 rounded-md border-2 border-primary-container flex items-center justify-center text-on-primary-container bg-primary-container/10 active:scale-90 transition-transform">
-<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'wght' 600;">check</span>
-</button>
-<div class="flex-1">
-<h4 class="font-body-md text-body-md font-semibold text-on-surface line-through opacity-50">Morning Meditation</h4>
-<p class="font-label-sm text-label-sm text-outline">10 minutes • Wellness</p>
-</div>
-<button class="opacity-0 group-hover:opacity-100 p-base text-error hover:bg-error-container/20 rounded-md transition-all">
-<span class="material-symbols-outlined text-[20px]">delete</span>
-</button>
-</div>
-<!-- Task 2 -->
-<div class="task-card-enter bg-surface-container-lowest p-md rounded-xl flex items-center gap-md shadow-[0_8px_16px_rgba(0,108,77,0.02)] group hover:shadow-[0_12px_24px_rgba(0,108,77,0.06)] transition-all" style="animation-delay: 0.1s;">
-<button class="w-6 h-6 rounded-md border-2 border-outline-variant hover:border-primary-container flex items-center justify-center transition-colors active:scale-90 transition-transform">
-</button>
-<div class="flex-1">
-<h4 class="font-body-md text-body-md font-semibold text-on-surface">Review Q3 Project Proposals</h4>
-<p class="font-label-sm text-label-sm text-outline">2:00 PM • Work</p>
-</div>
-<button class="opacity-0 group-hover:opacity-100 p-base text-error hover:bg-error-container/20 rounded-md transition-all">
-<span class="material-symbols-outlined text-[20px]">delete</span>
-</button>
-</div>
-<!-- Task 3 -->
-<div class="task-card-enter bg-surface-container-lowest p-md rounded-xl flex items-center gap-md shadow-[0_8px_16px_rgba(0,108,77,0.02)] group hover:shadow-[0_12px_24px_rgba(0,108,77,0.06)] transition-all" style="animation-delay: 0.2s;">
-<button class="w-6 h-6 rounded-md border-2 border-outline-variant hover:border-primary-container flex items-center justify-center transition-colors active:scale-90 transition-transform">
-</button>
-<div class="flex-1">
-<h4 class="font-body-md text-body-md font-semibold text-on-surface">Buy fresh eucalyptus</h4>
-<p class="font-label-sm text-label-sm text-outline">On the way home • Personal</p>
-</div>
-<button class="opacity-0 group-hover:opacity-100 p-base text-error hover:bg-error-container/20 rounded-md transition-all">
-<span class="material-symbols-outlined text-[20px]">delete</span>
-</button>
-</div>
-<!-- Task 4 -->
-<div class="task-card-enter bg-surface-container-lowest p-md rounded-xl flex items-center gap-md shadow-[0_8px_16px_rgba(0,108,77,0.02)] group hover:shadow-[0_12px_24px_rgba(0,108,77,0.06)] transition-all" style="animation-delay: 0.3s;">
-<button class="w-6 h-6 rounded-md border-2 border-primary-container flex items-center justify-center text-on-primary-container bg-primary-container/10 active:scale-90 transition-transform">
-<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'wght' 600;">check</span>
-</button>
-<div class="flex-1">
-<h4 class="font-body-md text-body-md font-semibold text-on-surface line-through opacity-50">Water the monstera</h4>
-<p class="font-label-sm text-label-sm text-outline">Morning Routine • Home</p>
-</div>
-<button class="opacity-0 group-hover:opacity-100 p-base text-error hover:bg-error-container/20 rounded-md transition-all">
-<span class="material-symbols-outlined text-[20px]">delete</span>
-</button>
-</div>
-</div>
-<!-- Atmospheric Visual -->
-<div class="mt-xl opacity-40">
-<div class="w-full h-48 rounded-2xl overflow-hidden relative grayscale hover:grayscale-0 transition-all duration-1000">
-<img class="w-full h-full object-cover" data-alt="A serene, high-key photograph of a minimalist workspace with a small green plant in a ceramic pot. The scene is bathed in soft, natural morning sunlight streaming through a window, creating long, soft shadows. The overall aesthetic is clean, breathable, and reflects a mindful, productive morning atmosphere with a soft mint and white color palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRDkVrNpF4N6kfEVmetXcuc91bpm4ZmuABXZBDyUnuZUxX01r82yJUs-TzUf3GRjtiVGGSA3iDBI_TaFKLixDBglB5qB9B7rIJqu-NqpPCQKf1YI46KqJaB-79OOzwbx0QrNLH4dmi1BwEmzw0qWEYjfA4YDkHkmE_06bo_YzDFnBMUPLNml31ITguO638l099FLvBy2TwNEpgTrCrl3Lewu5p5mmbn6BLY62std0RCjBuLtx2ipAoNZGUMCU9Dk2bMOG7r2lF584">
-<div class="absolute inset-0 bg-gradient-to-t from-background to-transparent"></div>
-</div>
-</div>
-</main>
-<!-- Floating Action Button -->
-<button class="fixed bottom-28 right-margin-mobile w-14 h-14 bg-primary-container text-on-primary-container rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-transform z-40 group">
-<span class="material-symbols-outlined text-[28px] group-hover:rotate-90 transition-transform duration-300">add</span>
-</button>
-<!-- Bottom Navigation Bar -->
+<!DOCTYPE html>
+<html class="light" lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta content="width=device-width, initial-scale=1.0" name="viewport">
+		<title>Daily Bloom - Tasks</title>
+		<script
+			src="https://cdn.tailwindcss.com?plugins=forms,container-queries"
+		></script>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+			rel="stylesheet"
+		>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+			rel="stylesheet"
+		>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@100..900&amp;display=swap"
+			rel="stylesheet"
+		>
+		<style>
+		.material-symbols-outlined {
+			font-variation-settings:
+				"FILL" 0,
+				"wght" 300,
+				"GRAD" 0,
+				"opsz" 24;
+		}
+		.task-card-enter {
+			animation: slideUp 0.5s ease-out forwards;
+		}
+		@keyframes slideUp {
+			from {
+				opacity: 0;
+				transform: translateY(20px);
+			}
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+		.glass-header {
+			-webkit-backdrop-filter: blur(12px);
+			backdrop-filter: blur(12px);
+		}
+		</style>
+		<script id="tailwind-config">
+		"use strict";
+		tailwind.config = {
+			darkMode: "class",
+			theme: {
+				extend: {
+					colors: {
+						"surface-container": "#eceeef",
+						"outline-variant": "#bccac1",
+						"tertiary-fixed-dim": "#b7cbc6",
+						surface: "#f8fafb",
+						tertiary: "#50625e",
+						"surface-bright": "#f8fafb",
+						"surface-container-highest": "#e1e3e4",
+						"on-secondary-fixed-variant": "#004d65",
+						"surface-dim": "#d8dadb",
+						primary: "#006c4d",
+						"primary-container": "#3eb489",
+						"tertiary-container": "#92a5a1",
+						"secondary-container": "#98deff",
+						"surface-container-low": "#f2f4f5",
+						"on-tertiary-fixed-variant": "#394a47",
+						"on-background": "#191c1d",
+						"on-primary-fixed-variant": "#005139",
+						error: "#ba1a1a",
+						"secondary-fixed": "#bee9ff",
+						"inverse-surface": "#2e3132",
+						outline: "#6d7a72",
+						background: "#f8fafb",
+						"on-error-container": "#93000a",
+						"primary-fixed": "#86f8c8",
+						"tertiary-fixed": "#d3e7e2",
+						"on-tertiary": "#ffffff",
+						"on-surface-variant": "#3d4943",
+						"surface-tint": "#006c4d",
+						"surface-container-high": "#e6e8e9",
+						"inverse-on-surface": "#eff1f2",
+						"on-secondary": "#ffffff",
+						"on-surface": "#191c1d",
+						secondary: "#0d6683",
+						"on-primary-container": "#00402d",
+						"surface-container-lowest": "#ffffff",
+						"surface-variant": "#e1e3e4",
+						"on-secondary-container": "#056380",
+						"primary-fixed-dim": "#69dbad",
+						"on-tertiary-fixed": "#0d1f1c",
+						"on-tertiary-container": "#2a3b38",
+						"secondary-fixed-dim": "#8ad0f1",
+						"inverse-primary": "#69dbad",
+						"on-error": "#ffffff",
+						"error-container": "#ffdad6",
+						"on-primary-fixed": "#002115",
+						"on-secondary-fixed": "#001f2a",
+						"on-primary": "#ffffff",
+					},
+					borderRadius: {
+						DEFAULT: "0.25rem",
+						lg: "0.5rem",
+						xl: "0.75rem",
+						full: "9999px",
+					},
+					spacing: {
+						xl: "32px",
+						gutter: "16px",
+						md: "16px",
+						base: "4px",
+						lg: "24px",
+						xs: "4px",
+						"margin-mobile": "20px",
+						sm: "8px",
+					},
+					fontFamily: {
+						"body-sm": ["Plus Jakarta Sans"],
+						"headline-lg-mobile": ["Plus Jakarta Sans"],
+						"label-sm": ["Plus Jakarta Sans"],
+						"body-md": ["Plus Jakarta Sans"],
+						"label-md": ["Plus Jakarta Sans"],
+						"body-lg": ["Plus Jakarta Sans"],
+						"headline-lg": ["Plus Jakarta Sans"],
+						"headline-xl": ["Plus Jakarta Sans"],
+					},
+					fontSize: {
+						"body-sm": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+						"headline-lg-mobile": [
+							"22px",
+							{ lineHeight: "28px", fontWeight: "600" },
+						],
+						"label-sm": ["10px", { lineHeight: "14px", fontWeight: "500" }],
+						"body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+						"label-md": [
+							"12px",
+							{
+								lineHeight: "16px",
+								letterSpacing: "0.02em",
+								fontWeight: "600",
+							},
+						],
+						"body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
+						"headline-lg": [
+							"24px",
+							{
+								lineHeight: "32px",
+								letterSpacing: "-0.01em",
+								fontWeight: "600",
+							},
+						],
+						"headline-xl": [
+							"32px",
+							{
+								lineHeight: "40px",
+								letterSpacing: "-0.02em",
+								fontWeight: "700",
+							},
+						],
+					},
+				},
+			},
+		};
+		</script>
+	</head>
+	<body class="bg-background text-on-background min-h-screen font-body-md">
+		<!-- Top Navigation Bar -->
+		<header
+			class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md flex justify-between items-center px-margin-mobile py-sm"
+		>
+			<div class="flex items-center gap-3">
+				<div
+					class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed overflow-hidden border-2 border-primary-container/20"
+				>
+					<img
+						alt="User Profile"
+						class="w-full h-full object-cover"
+						src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQpfA8vq0DnVptuwKzqn_MVJeUDa7fCQW_1PR4xvdF3WxBhMVRJYffJeAT1-hKWJ71nAuAy2-xW--fXwVoiyA8n7EbN1nR8ZPk9LC1SEwZrEDwZ1BixU4NdyS4SYnANtIe8-naXzi6FqOUH31nhtMv9Ofd-xM9FFzRcgppTTcj7E86xK4-5UOLP82BwxKqBn_3hYP-ZKmAimPoLcJZ2Nk8_M5qySTfSb0B59zzAZQQMT7cGvYCkXXOe2_cBnOp4zvN-xvUwS8fhwk"
+					>
+				</div>
+				<span
+					class="font-headline-lg-mobile text-headline-lg-mobile font-semibold text-primary"
+					>Daily Bloom</span
+				>
+			</div>
+			<button
+				class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors"
+			>
+				<span class="material-symbols-outlined text-on-surface-variant"
+					>settings</span
+				>
+			</button>
+		</header>
+		<main class="pt-24 px-margin-mobile max-w-2xl mx-auto">
+			<!-- Welcome Section -->
+			<section class="mb-xl">
+				<h1
+					class="font-headline-xl text-headline-xl text-on-background mb-base"
+				>
+					Good morning, User!
+				</h1>
+				<p class="font-body-lg text-body-lg text-on-surface-variant">
+					You're making great progress today.
+				</p>
+			</section>
+			<!-- Progress Card -->
+			<section
+				class="bg-surface-container-lowest p-lg rounded-xl mb-xl shadow-[0_16px_32px_rgba(0,108,77,0.04)]"
+			>
+				<div class="flex justify-between items-end mb-sm">
+					<div>
+						<span
+							class="font-label-md text-label-md text-primary uppercase tracking-wider"
+							>Daily Goal</span
+						>
+						<h3 class="font-headline-lg-mobile text-headline-lg-mobile">
+							75% Completed
+						</h3>
+					</div>
+					<span class="font-body-sm text-body-sm text-on-surface-variant"
+						>6 of 8 tasks</span
+					>
+				</div>
+				<div
+					class="w-full h-3 bg-surface-container rounded-full overflow-hidden"
+				>
+					<div
+						class="h-full bg-primary-container rounded-full transition-all duration-700 ease-out"
+						style="width: 75%; filter: none;"
+					></div>
+				</div>
+			</section>
+			<!-- Task List Header -->
+			<div class="flex justify-between items-center mb-md">
+				<h2 class="font-headline-lg-mobile text-headline-lg-mobile">
+					Today's Tasks
+				</h2>
+				<button
+					class="font-label-md text-label-md text-primary hover:opacity-80 transition-opacity px-md py-xs rounded-full bg-primary-fixed/30"
+				>
+					Edit
+				</button>
+			</div>
+			<!-- Task Items -->
+			<div class="space-y-md">
+				<!-- Task 1 -->
+				<div
+					class="task-card-enter bg-surface-container-lowest p-md rounded-xl flex items-center gap-md shadow-[0_8px_16px_rgba(0,108,77,0.02)] group hover:shadow-[0_12px_24px_rgba(0,108,77,0.06)] transition-all"
+				>
+					<button
+						class="w-6 h-6 rounded-md border-2 border-primary-container flex items-center justify-center text-on-primary-container bg-primary-container/10 active:scale-90 transition-transform"
+					>
+						<span
+							class="material-symbols-outlined text-[18px]"
+							style="font-variation-settings: 'wght' 600;"
+							>check</span
+						>
+					</button>
+					<div class="flex-1">
+						<h4
+							class="font-body-md text-body-md font-semibold text-on-surface line-through opacity-50"
+						>
+							Morning Meditation
+						</h4>
+						<p class="font-label-sm text-label-sm text-outline">
+							10 minutes • Wellness
+						</p>
+					</div>
+					<button
+						class="opacity-0 group-hover:opacity-100 p-base text-error hover:bg-error-container/20 rounded-md transition-all"
+					>
+						<span class="material-symbols-outlined text-[20px]">delete</span>
+					</button>
+				</div>
+				<!-- Task 2 -->
+				<div
+					class="task-card-enter bg-surface-container-lowest p-md rounded-xl flex items-center gap-md shadow-[0_8px_16px_rgba(0,108,77,0.02)] group hover:shadow-[0_12px_24px_rgba(0,108,77,0.06)] transition-all"
+					style="animation-delay: 0.1s;"
+				>
+					<button
+						class="w-6 h-6 rounded-md border-2 border-outline-variant hover:border-primary-container flex items-center justify-center transition-colors active:scale-90 transition-transform"
+					></button>
+					<div class="flex-1">
+						<h4 class="font-body-md text-body-md font-semibold text-on-surface">
+							Review Q3 Project Proposals
+						</h4>
+						<p class="font-label-sm text-label-sm text-outline">
+							2:00 PM • Work
+						</p>
+					</div>
+					<button
+						class="opacity-0 group-hover:opacity-100 p-base text-error hover:bg-error-container/20 rounded-md transition-all"
+					>
+						<span class="material-symbols-outlined text-[20px]">delete</span>
+					</button>
+				</div>
+				<!-- Task 3 -->
+				<div
+					class="task-card-enter bg-surface-container-lowest p-md rounded-xl flex items-center gap-md shadow-[0_8px_16px_rgba(0,108,77,0.02)] group hover:shadow-[0_12px_24px_rgba(0,108,77,0.06)] transition-all"
+					style="animation-delay: 0.2s;"
+				>
+					<button
+						class="w-6 h-6 rounded-md border-2 border-outline-variant hover:border-primary-container flex items-center justify-center transition-colors active:scale-90 transition-transform"
+					></button>
+					<div class="flex-1">
+						<h4 class="font-body-md text-body-md font-semibold text-on-surface">
+							Buy fresh eucalyptus
+						</h4>
+						<p class="font-label-sm text-label-sm text-outline">
+							On the way home • Personal
+						</p>
+					</div>
+					<button
+						class="opacity-0 group-hover:opacity-100 p-base text-error hover:bg-error-container/20 rounded-md transition-all"
+					>
+						<span class="material-symbols-outlined text-[20px]">delete</span>
+					</button>
+				</div>
+				<!-- Task 4 -->
+				<div
+					class="task-card-enter bg-surface-container-lowest p-md rounded-xl flex items-center gap-md shadow-[0_8px_16px_rgba(0,108,77,0.02)] group hover:shadow-[0_12px_24px_rgba(0,108,77,0.06)] transition-all"
+					style="animation-delay: 0.3s;"
+				>
+					<button
+						class="w-6 h-6 rounded-md border-2 border-primary-container flex items-center justify-center text-on-primary-container bg-primary-container/10 active:scale-90 transition-transform"
+					>
+						<span
+							class="material-symbols-outlined text-[18px]"
+							style="font-variation-settings: 'wght' 600;"
+							>check</span
+						>
+					</button>
+					<div class="flex-1">
+						<h4
+							class="font-body-md text-body-md font-semibold text-on-surface line-through opacity-50"
+						>
+							Water the monstera
+						</h4>
+						<p class="font-label-sm text-label-sm text-outline">
+							Morning Routine • Home
+						</p>
+					</div>
+					<button
+						class="opacity-0 group-hover:opacity-100 p-base text-error hover:bg-error-container/20 rounded-md transition-all"
+					>
+						<span class="material-symbols-outlined text-[20px]">delete</span>
+					</button>
+				</div>
+			</div>
+			<!-- Atmospheric Visual -->
+			<div class="mt-xl opacity-40">
+				<div
+					class="w-full h-48 rounded-2xl overflow-hidden relative grayscale hover:grayscale-0 transition-all duration-1000"
+				>
+					<img
+						class="w-full h-full object-cover"
+						data-alt="A serene, high-key photograph of a minimalist workspace with a small green plant in a ceramic pot. The scene is bathed in soft, natural morning sunlight streaming through a window, creating long, soft shadows. The overall aesthetic is clean, breathable, and reflects a mindful, productive morning atmosphere with a soft mint and white color palette."
+						src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRDkVrNpF4N6kfEVmetXcuc91bpm4ZmuABXZBDyUnuZUxX01r82yJUs-TzUf3GRjtiVGGSA3iDBI_TaFKLixDBglB5qB9B7rIJqu-NqpPCQKf1YI46KqJaB-79OOzwbx0QrNLH4dmi1BwEmzw0qWEYjfA4YDkHkmE_06bo_YzDFnBMUPLNml31ITguO638l099FLvBy2TwNEpgTrCrl3Lewu5p5mmbn6BLY62std0RCjBuLtx2ipAoNZGUMCU9Dk2bMOG7r2lF584"
+					>
+					<div
+						class="absolute inset-0 bg-gradient-to-t from-background to-transparent"
+					></div>
+				</div>
+			</div>
+		</main>
+		<!-- Floating Action Button -->
+		<button
+			class="fixed bottom-28 right-margin-mobile w-14 h-14 bg-primary-container text-on-primary-container rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-transform z-40 group"
+		>
+			<span
+				class="material-symbols-outlined text-[28px] group-hover:rotate-90 transition-transform duration-300"
+				>add</span
+			>
+		</button>
+		<!-- Bottom Navigation Bar -->
 
-<script>
-        // Simple micro-interactions
-        document.querySelectorAll('.task-card-enter').forEach(card => {
-            card.addEventListener('click', function(e) {
-                if (e.target.closest('button')) return;
-                this.classList.toggle('opacity-70');
-                const title = this.querySelector('h4');
-                title.classList.toggle('line-through');
-                title.classList.toggle('opacity-50');
-                
-                const check = this.querySelector('.material-symbols-outlined');
-                if (check) {
-                    check.textContent = check.textContent === 'check' ? '' : 'check';
-                }
-            });
-        });
+		<script>
+		"use strict";
+		// Simple micro-interactions
+		document.querySelectorAll(".task-card-enter").forEach((card) => {
+			card.addEventListener("click", function (e) {
+				if (e.target.closest("button")) {
+					return;
+				}
+				this.classList.toggle("opacity-70");
+				const title = this.querySelector("h4");
+				title.classList.toggle("line-through");
+				title.classList.toggle("opacity-50");
 
-        // Hover scale effect for progress bar
-        const progressBar = document.querySelector('.bg-primary-container');
-        progressBar.parentElement.parentElement.addEventListener('mouseenter', () => {
-            progressBar.style.filter = 'brightness(1.1)';
-        });
-        progressBar.parentElement.parentElement.addEventListener('mouseleave', () => {
-            progressBar.style.filter = 'none';
-        });
-    </script>
+				const check = this.querySelector(".material-symbols-outlined");
+				if (check) {
+					check.textContent = check.textContent === "check" ? "" : "check";
+				}
+			});
+		});
 
-
-</body></html>
+		// Hover scale effect for progress bar
+		const progressBar = document.querySelector(".bg-primary-container");
+		progressBar.parentElement.parentElement.addEventListener(
+			"mouseenter",
+			() => {
+				progressBar.style.filter = "brightness(1.1)";
+			}
+		);
+		progressBar.parentElement.parentElement.addEventListener(
+			"mouseleave",
+			() => {
+				progressBar.style.filter = "none";
+			}
+		);
+		</script>
+	</body>
+</html>
