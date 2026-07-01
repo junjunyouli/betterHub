@@ -23,6 +23,10 @@
 - Amazon Q Developer in chat applications：用于在聊天应用中接入开发辅助、告警分析和团队协作问答。
 - 账单与成本管理：用于跟踪 AWS 资源成本、预算、用量和后续成本优化。
 
+## Environment Variables
+
+开发过程中需要的运行参数、云资源配置、数据库连接、认证密钥、API Key 等都写入对应 `.env` 文件作为占位，不要硬编码到源码中；本地可使用占位值或示例值，真实密钥只在部署环境或安全密钥管理服务中配置。
+
 This project uses **Ultracite**, a zero-config preset that enforces strict code quality standards through automated formatting and linting.
 
 ## Quick Reference
@@ -147,3 +151,55 @@ Biome's linter will catch most issues automatically. Focus your attention on:
 ---
 
 Most formatting and common issues are automatically fixed by Biome. Run `npm exec -- ultracite fix` before committing to ensure compliance.
+
+---
+
+## 技术栈
+
+- 语言：TypeScript
+- 前端：React + TanStack Router (`apps/web`)
+- 后端：Hono + tRPC (`apps/server`)
+- 文档：Astro Starlight (`apps/docs`)
+- 数据层：Drizzle ORM + PostgreSQL (`packages/db`)
+- 认证：Better-Auth (`packages/auth`)
+- Monorepo：npm workspaces + Turborepo
+- 代码规范：Biome / ultracite
+
+## 常用命令
+
+| 用途 | 命令 |
+| --- | --- |
+| 安装依赖 | `npm install` |
+| 开发 | `npm run dev` |
+| 构建 | `npm run build` |
+| 类型检查（测试） | `npm run check-types` |
+| Lint / 格式化 | `npm run check` |
+
+## 目录结构
+
+```
+betterHub/
+├── apps/
+│   ├── web/         # React + TanStack Router 前端
+│   ├── server/      # Hono + tRPC 后端
+│   └── docs/        # Astro Starlight 文档
+├── packages/
+│   ├── api/         # tRPC 路由/契约
+│   ├── auth/        # Better-Auth 配置
+│   ├── db/          # Drizzle ORM + PostgreSQL
+│   ├── config/      # 共享配置
+│   ├── env/         # 环境变量校验
+│   └── ui/          # 共享 UI 组件
+├── specs/           # 开发规格 (requirements/design/tasks)
+├── biome.json       # Biome/ultracite 配置
+└── turbo.json       # Turborepo 任务管线
+```
+
+## Rules（按需引入）
+
+当前无独立 rules 文件；后续在 `.claude/rules/` 下新增规则时，在此以 `@rules/xxx.md` 形式按需引入。
+
+---
+
+<!-- 项目踩坑/教训（自学习闭环，开发中持续追加） -->
+@AGENTS.md

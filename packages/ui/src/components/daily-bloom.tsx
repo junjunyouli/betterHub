@@ -47,9 +47,38 @@ interface BloomTaskItemProps {
 
 interface BloomAddTaskSheetProps {
 	onClose: () => void;
-	onSubmit: (task: { text: string; category: BloomCategory }) => void;
+	onSubmit: (task: {
+		text: string;
+		category: BloomCategory;
+		dueAt: Date | null;
+	}) => void;
 	open: boolean;
 	pending?: boolean;
+}
+
+type BloomDueOption = "today" | "tomorrow" | "custom" | null;
+
+/** 将截止时间选项映射为具体 Date（今天/明天取当日 23:59；自定义解析输入；未选返回 null）。 */
+function resolveDueAt(
+	option: BloomDueOption,
+	customValue: string
+): Date | null {
+	if (option === "custom") {
+		if (!customValue) {
+			return null;
+		}
+		const parsed = new Date(customValue);
+		return Number.isNaN(parsed.getTime()) ? null : parsed;
+	}
+	if (option === "today" || option === "tomorrow") {
+		const date = new Date();
+		if (option === "tomorrow") {
+			date.setDate(date.getDate() + 1);
+		}
+		date.setHours(23, 59, 0, 0);
+		return date;
+	}
+	return null;
 }
 
 const categoryOptions: Array<{
@@ -312,6 +341,8 @@ export function BloomAddTaskSheet({
 }: BloomAddTaskSheetProps) {
 	const [text, setText] = useState("");
 	const [category, setCategory] = useState<BloomCategory>("Work");
+	const [dueOption, setDueOption] = useState<BloomDueOption>(null);
+	const [customValue, setCustomValue] = useState("");
 
 	if (!open) {
 		return null;
@@ -325,8 +356,18 @@ export function BloomAddTaskSheet({
 			return;
 		}
 
-		onSubmit({ text: trimmedText, category });
+		onSubmit({
+			text: trimmedText,
+			category,
+			dueAt: resolveDueAt(dueOption, customValue),
+		});
 		setText("");
+		setDueOption(null);
+		setCustomValue("");
+	};
+
+	const toggleDue = (option: Exclude<BloomDueOption, null>) => {
+		setDueOption((current) => (current === option ? null : option));
 	};
 
 	return (
@@ -401,10 +442,34 @@ export function BloomAddTaskSheet({
 							截止时间
 						</p>
 						<div className="flex gap-2">
-							<BloomDateOption icon={<CalendarDays />} label="今天" />
-							<BloomDateOption icon={<Clock />} label="明天" />
-							<BloomDateOption icon={<Clock />} label="选择时间" />
+							<BloomDateOption
+								active={dueOption === "today"}
+								icon={<CalendarDays />}
+								label="今天"
+								onClick={() => toggleDue("today")}
+							/>
+							<BloomDateOption
+								active={dueOption === "tomorrow"}
+								icon={<Clock />}
+								label="明天"
+								onClick={() => toggleDue("tomorrow")}
+							/>
+							<BloomDateOption
+								active={dueOption === "custom"}
+								icon={<Clock />}
+								label="选择时间"
+								onClick={() => toggleDue("custom")}
+							/>
 						</div>
+						{dueOption === "custom" && (
+							<input
+								aria-label="选择截止时间"
+								className="mt-3 w-full rounded-xl border border-[#bccac1]/30 bg-[#f2f4f5] px-3 py-2 text-[#191c1d] text-[14px] leading-5 outline-none focus:border-[#006c4d]"
+								onChange={(event) => setCustomValue(event.target.value)}
+								type="datetime-local"
+								value={customValue}
+							/>
+						)}
 					</div>
 					<BloomPrimaryButton
 						className="bg-[#3eb489] text-[#00402d]"
@@ -443,10 +508,27 @@ function BloomNavItem({
 	);
 }
 
-function BloomDateOption({ icon, label }: { icon: ReactNode; label: string }) {
+function BloomDateOption({
+	active,
+	icon,
+	label,
+	onClick,
+}: {
+	active?: boolean;
+	icon: ReactNode;
+	label: string;
+	onClick?: () => void;
+}) {
 	return (
 		<button
-			className="flex min-h-20 flex-1 flex-col items-center justify-center gap-1 rounded-xl border border-[#bccac1]/30 bg-[#f2f4f5] px-2 text-[#191c1d] text-[14px] leading-5 transition-transform active:scale-95 [&_svg]:size-5 [&_svg]:text-[#006c4d]"
+			aria-pressed={active}
+			className={cn(
+				"flex min-h-20 flex-1 flex-col items-center justify-center gap-1 rounded-xl border px-2 text-[14px] leading-5 transition-transform active:scale-95 [&_svg]:size-5 [&_svg]:text-[#006c4d]",
+				active
+					? "border-[#006c4d] bg-[#86f8c8]/30 text-[#00402d]"
+					: "border-[#bccac1]/30 bg-[#f2f4f5] text-[#191c1d]"
+			)}
+			onClick={onClick}
 			type="button"
 		>
 			{icon}

@@ -11,26 +11,55 @@ import {
 } from "@betterHub/ui/components/daily-bloom";
 import { Skeleton } from "@betterHub/ui/components/skeleton";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useState } from "react";
 
+import { authClient } from "@/lib/auth-client";
 import { trpc } from "@/utils/trpc";
 
-const DEFAULT_TASK_META = "Today • Task";
+function formatTaskMeta(
+	category: BloomCategory,
+	dueAt: Date | string | null
+): string {
+	if (!dueAt) {
+		return `No due date • ${category}`;
+	}
+	const due = new Date(dueAt);
+	const label = due.toLocaleString(undefined, {
+		month: "short",
+		day: "numeric",
+		hour: "2-digit",
+		minute: "2-digit",
+	});
+	return `${label} • ${category}`;
+}
 
 export const Route = createFileRoute("/todos")({
 	component: TodosRoute,
+	beforeLoad: async () => {
+		const session = await authClient.getSession();
+		if (!session.data) {
+			throw redirect({ to: "/login" });
+		}
+	},
 });
 
 function TodosRoute() {
 	const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
 
-	const todos = useQuery(trpc.todo.getAll.queryOptions());
+	const todos = useQuery(trpc.todo.getToday.queryOptions());
+	const stats = useQuery(trpc.todo.getStats.queryOptions());
+
+	const refetchAll = () => {
+		todos.refetch();
+		stats.refetch();
+	};
+
 	const createMutation = useMutation(
 		trpc.todo.create.mutationOptions({
 			onSuccess: () => {
-				todos.refetch();
+				refetchAll();
 				setIsAddTaskOpen(false);
 			},
 		})
@@ -38,14 +67,14 @@ function TodosRoute() {
 	const toggleMutation = useMutation(
 		trpc.todo.toggle.mutationOptions({
 			onSuccess: () => {
-				todos.refetch();
+				refetchAll();
 			},
 		})
 	);
 	const deleteMutation = useMutation(
 		trpc.todo.delete.mutationOptions({
 			onSuccess: () => {
-				todos.refetch();
+				refetchAll();
 			},
 		})
 	);
@@ -54,11 +83,9 @@ function TodosRoute() {
 		todos.data?.map((item) => ({
 			completed: item.completed,
 			id: item.id,
-			meta: DEFAULT_TASK_META,
-			title: item.text,
+			meta: formatTaskMeta(item.category, item.dueAt),
+			title: item.title,
 		})) ?? [];
-
-	const completedCount = taskItems.filter((task) => task.completed).length;
 
 	const handleToggleTodo = (id: number, completed: boolean) => {
 		toggleMutation.mutate({ id, completed: !completed });
@@ -70,11 +97,14 @@ function TodosRoute() {
 
 	const handleCreateTodo = ({
 		text,
+		category,
+		dueAt,
 	}: {
 		category: BloomCategory;
 		text: string;
+		dueAt: Date | null;
 	}) => {
-		createMutation.mutate({ text });
+		createMutation.mutate({ title: text, category, dueAt });
 	};
 
 	let taskContent: ReactNode;
@@ -125,8 +155,8 @@ function TodosRoute() {
 				</section>
 
 				<BloomProgressCard
-					completed={completedCount}
-					total={taskItems.length}
+					completed={stats.data?.completed ?? 0}
+					total={stats.data?.total ?? 0}
 				/>
 
 				<div className="mb-4 flex items-center justify-between">

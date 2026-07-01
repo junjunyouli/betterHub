@@ -16,8 +16,8 @@
 
 ### 功能 1: 模型扩展（DB）
 
-- [ ] T-001: `todo` schema 定义 `todoCategory` pgEnum，新增 `category`/`dueAt`/`createdAt`/`updatedAt` 列，`text`→`title` 重命名，加 `todo_dueAt_idx` ~30min
-- [ ] T-002: 生成并应用 migration，核对 `text`→`title` 为 rename（不丢数据）、enum 与默认值正确落库 ~15min
+- [x] T-001: `todo` schema 定义 `todoCategory` pgEnum，新增 `category`/`dueAt`/`createdAt`/`updatedAt` 列，`text`→`title` 重命名，加 `todo_dueAt_idx` ~30min
+- [x] T-002: 生成并应用 migration，核对 `text`→`title` 为 rename（不丢数据）、enum 与默认值正确落库 ~15min
 
 ### 功能 2: 接口扩展（API）
 

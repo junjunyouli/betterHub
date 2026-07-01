@@ -1,0 +1,94 @@
+name: Deploy AWS SAM
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "GitHub deployment environment name"
+        required: true
+        default: "prod"
+      stack_name:
+        description: "CloudFormation stack name"
+        required: true
+        default: "betterhub-prod"
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-aws-sam-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-west-2' }}
+  SAM_TEMPLATE: ${{ vars.SAM_TEMPLATE || 'template.yaml' }}
+  SAM_STACK_NAME: ${{ github.event.inputs.stack_name || vars.SAM_STACK_NAME || 'betterhub-prod' }}
+
+jobs:
+  deploy:
+    name: Build and deploy SAM stack
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || vars.SAM_CONFIG_ENV || 'prod' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run check-types
+
+      - name: Build workspace
+        run: npm run build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_GITHUB_ACTIONS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup AWS SAM CLI
+        uses: aws-actions/setup-sam@v2
+
+      - name: Validate SAM template
+        run: sam validate --template-file "$SAM_TEMPLATE"
+
+      - name: Build SAM application
+        run: sam build --template-file "$SAM_TEMPLATE"
+
+      - name: Deploy SAM application
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+          BETTER_AUTH_URL: ${{ vars.BETTER_AUTH_URL }}
+          CORS_ORIGIN: ${{ vars.CORS_ORIGIN }}
+        run: |
+          DATABASE_URL_VALUE="${DATABASE_URL:-postgresql://placeholder:placeholder@localhost:5432/betterhub}"
+          BETTER_AUTH_SECRET_VALUE="${BETTER_AUTH_SECRET:-replace-with-32-character-secret}"
+          BETTER_AUTH_URL_VALUE="${BETTER_AUTH_URL:-https://api.example.com}"
+          CORS_ORIGIN_VALUE="${CORS_ORIGIN:-https://example.com}"
+
+          sam deploy \
+            --stack-name "$SAM_STACK_NAME" \
+            --region "$AWS_REGION" \
+            --resolve-s3 \
+            --no-confirm-changeset \
+            --no-fail-on-empty-changeset \
+            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+            --parameter-overrides \
+              DatabaseUrl="$DATABASE_URL_VALUE" \
+              BetterAuthSecret="$BETTER_AUTH_SECRET_VALUE" \
+              BetterAuthUrl="$BETTER_AUTH_URL_VALUE" \
+              CorsOrigin="$CORS_ORIGIN_VALUE"

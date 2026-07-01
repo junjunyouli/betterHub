@@ -1,0 +1,93 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: betterHub Daily Bloom serverless API.
+
+Parameters:
+  DatabaseUrl:
+    Type: String
+    NoEcho: true
+    Default: "postgresql://placeholder:placeholder@localhost:5432/betterhub"
+    Description: PostgreSQL connection string. Override from GitHub Actions or AWS Secrets Manager.
+  BetterAuthSecret:
+    Type: String
+    NoEcho: true
+    MinLength: 32
+    Default: "replace-with-32-character-secret"
+    Description: Better Auth secret. Use a real secret in production.
+  BetterAuthUrl:
+    Type: String
+    Default: "https://api.example.com"
+    Description: Public API base URL used by Better Auth.
+  CorsOrigin:
+    Type: String
+    Default: "https://example.com"
+    Description: Allowed web origin for CORS.
+
+Globals:
+  Function:
+    Runtime: nodejs22.x
+    Architectures:
+      - arm64
+    Timeout: 30
+    MemorySize: 512
+    Environment:
+      Variables:
+        NODE_ENV: production
+        DATABASE_URL: !Ref DatabaseUrl
+        BETTER_AUTH_SECRET: !Ref BetterAuthSecret
+        BETTER_AUTH_URL: !Ref BetterAuthUrl
+        CORS_ORIGIN: !Ref CorsOrigin
+
+Resources:
+  BetterHubHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowCredentials: true
+        AllowHeaders:
+          - Content-Type
+          - Authorization
+        AllowMethods:
+          - GET
+          - POST
+          - OPTIONS
+        AllowOrigins:
+          - !Ref CorsOrigin
+
+  BetterHubApiFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Bundle: true
+        EntryPoints:
+          - apps/server/src/lambda.ts
+        External:
+          - pg-native
+        Format: cjs
+        Minify: true
+        Sourcemap: true
+        Target: es2022
+    Properties:
+      CodeUri: .
+      Handler: apps/server/src/lambda.handler
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Events:
+        RootRoute:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref BetterHubHttpApi
+            Path: /
+            Method: ANY
+        ProxyRoute:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref BetterHubHttpApi
+            Path: /{proxy+}
+            Method: ANY
+
+Outputs:
+  ApiUrl:
+    Description: API Gateway endpoint URL.
+    Value: !Sub "https://${BetterHubHttpApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/"

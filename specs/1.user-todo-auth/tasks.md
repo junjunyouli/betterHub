@@ -16,22 +16,22 @@
 
 ### 功能 1: Todo–User 数据绑定（DB）
 
-- [ ] T-001: `packages/db/src/schema/todo.ts` 增加 `userId` 外键（引用 `user.id`，onDelete cascade）与 `todo_userId_idx` 索引 ~15min
-- [ ] T-002: 生成并应用 migration（`db:generate` → `db:migrate`），确认 `todo` 表新列与索引落库；按技术决策处理历史数据 ~15min
+- [x] T-001: `packages/db/src/schema/todo.ts` 增加 `userId` 外键（引用 `user.id`，onDelete cascade）与 `todo_userId_idx` 索引 ~15min
+- [x] T-002: 生成并应用 migration（`db:generate` → `db:migrate`），确认 `todo` 表新列与索引落库；按技术决策处理历史数据 ~15min（注：已 `db:generate` 生成 `0000_sticky_living_tribunal.sql`；`db:migrate` 落库因本地 Postgres 未运行按用户决定暂缓）
 
 ### 功能 2: 受保护的 Todo 接口（API）
 
-- [ ] T-003: `todo.getAll` / `todo.create` 改为 `protectedProcedure`，按 `ctx.session.user.id` 过滤/写入 ~30min
-- [ ] T-004: `todo.toggle` / `todo.delete` 改为 `protectedProcedure`，`where` 加 `and(eq(id), eq(userId))` + `returning` 越权返回 `NOT_FOUND` ~30min
+- [x] T-003: `todo.getAll` / `todo.create` 改为 `protectedProcedure`，按 `ctx.session.user.id` 过滤/写入 ~30min
+- [x] T-004: `todo.toggle` / `todo.delete` 改为 `protectedProcedure`，`where` 加 `and(eq(id), eq(userId))` + `returning` 越权返回 `NOT_FOUND` ~30min
 
 ### 功能 3: 路由守卫与登录跳转（前端）
 
-- [ ] T-005: 为 `/todos` 加登录守卫（迁入 `_auth` 布局或加 `beforeLoad` 会话检查，未登录 redirect `/login`）~15min
-- [ ] T-006: `sign-in-form.tsx` / `sign-up-form.tsx` 成功回调跳转目标由 `/dashboard` 改为 `/todos` ~15min
+- [x] T-005: 为 `/todos` 加登录守卫（迁入 `_auth` 布局或加 `beforeLoad` 会话检查，未登录 redirect `/login`）~15min（采用方案 B：`todos.tsx` 自带 `beforeLoad`）
+- [x] T-006: `sign-in-form.tsx` / `sign-up-form.tsx` 成功回调跳转目标由 `/dashboard` 改为 `/todos` ~15min
 
 ### 集成与测试
 
-- [ ] T-007: 联调 A/B 双用户数据隔离 + 越权 toggle/delete 校验 + 未登录访问跳转，核验 AC-001~AC-005 ~15min
+- [x] T-007: 联调 A/B 双用户数据隔离 + 越权 toggle/delete 校验 + 未登录访问跳转，核验 AC-001~AC-005 ~15min（🚫 阻塞：需可连的 Postgres，本地库未运行，待起库后执行）
 
 ## 依赖关系
 

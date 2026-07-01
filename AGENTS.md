@@ -23,6 +23,10 @@
 - Amazon Q Developer in chat applications：用于在聊天应用中接入开发辅助、告警分析和团队协作问答。
 - 账单与成本管理：用于跟踪 AWS 资源成本、预算、用量和后续成本优化。
 
+## Environment Variables
+
+开发过程中需要的运行参数、云资源配置、数据库连接、认证密钥、API Key 等都写入对应 `.env` 文件作为占位，不要硬编码到源码中；本地可使用占位值或示例值，真实密钥只在部署环境或安全密钥管理服务中配置。
+
 This project uses **Ultracite**, a zero-config preset that enforces strict code quality standards through automated formatting and linting.
 
 ## Quick Reference
@@ -147,3 +151,16 @@ Biome's linter will catch most issues automatically. Focus your attention on:
 ---
 
 Most formatting and common issues are automatically fixed by Biome. Run `npm exec -- ultracite fix` before committing to ensure compliance.
+
+---
+
+# 项目踩坑与教训（AGENTS.md）
+
+供后续 task 与人类开发者复用；每条带 task 来源。
+
+- [T-007] 环境陷阱：本开发环境无本地 Postgres（localhost:5432 关闭）、无 docker、无 psql/pg_isready，也无 .env/DATABASE_URL。凡是需要真实 DB 的端到端 AC 核验（数据隔离、越权 toggle/delete、未登录跳转）只能做静态代码走查，不能据此标记完成；必须在可连 Postgres 环境回归：`npm run db:migrate` 落库 → 起 apps/server + apps/web → 用 A/B 两个账号实跑。task 要求「核验 AC」时，缺真实联调证据就保持未完成、记为 blocker。
+- [T-007] 文档同步坑：schema 再次 `db:generate` 会重新生成迁移文件（文件名随机，如 `0000_wet_johnny_blaze.sql`），之前 tasks 备注里引用的旧文件名（如 `0000_sticky_living_tribunal.sql`）会失效并误导排查。重生成迁移后，务必同步更新任务记录/文档里引用的迁移文件名。
+- [T-007] 部署坑：AWS SAM `template.yaml` 的 Lambda `Handler` 路径必须与 esbuild 打包产物结构匹配。将 `apps/server/src/index.ts` 拆成 `app.ts` + `lambda.ts` 后，打包产物是产物根目录的单文件 `lambda.js`，Handler 若仍写 `apps/server/src/lambda.handler` 会因找不到入口模块导致 Lambda 启动失败；改部署入口/拆分文件后要一并核实 Handler 路径。
+- [T-007] tRPC 序列化坑：前端 `httpBatchLink` 未配置 transformer（如 superjson）时，`z.date()` 输入会被 JSON 序列化成字符串，导致带 Date 字段（如 dueAt）的 create/update 校验失败。用到 Date 类型的 procedure，必须前后端一起配同一 transformer。
+- [T-007] 时区坑：`getTodayRange` 若用服务器时区计算「今天」窗口，与用户本地时区不一致时会让任务从 getToday/getStats 视图中消失；按用户本地时区处理「今天」边界。
+- [T-001] Drizzle 迁移坑（改列名/加 NOT NULL 列）：在 schema 里直接把列名从旧名改成新名（如 text→title），Drizzle `db:generate` 无法感知「重命名」意图，很可能生成 drop 旧列 + add 新列，正式库有数据会丢数据；同理给已有表新增 NOT NULL 且无默认值的列（如 user_id）迁移会直接失败。改列名前先确认目标库是否已初始化过：若已有历史数据，不要复用从零建表的 0000 迁移，必须新增一条 ALTER 迁移手写 `ALTER TABLE ... RENAME COLUMN`；加非空列要先建可空列→回填→再收紧 NOT NULL。生成迁移后务必人工核对 SQL 确实是 RENAME 而非 drop+add，再落库。
