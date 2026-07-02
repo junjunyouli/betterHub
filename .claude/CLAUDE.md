@@ -197,7 +197,13 @@ betterHub/
 
 ## Rules（按需引入）
 
-当前无独立 rules 文件；后续在 `.claude/rules/` 下新增规则时，在此以 `@rules/xxx.md` 形式按需引入。
+- @rules/coding-style.md — 通用编码风格与 Biome/ultracite 格式约定
+- @rules/frontend.md — 前端（`apps/web`，React + TanStack Router）规范
+- @rules/backend-api.md — 后端 API（`apps/server` + `packages/api`，Hono + tRPC）规范
+- @rules/database.md — 数据层（`packages/db`，Drizzle + PostgreSQL）规范
+- @rules/security.md — 认证、授权、输入校验与密钥安全规范
+- @rules/git-workflow.md — 分支、提交、PR 与提交前检查
+- @rules/testing.md — 测试策略与必需的校验门槛
 
 ---
 

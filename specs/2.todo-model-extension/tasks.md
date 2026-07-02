@@ -21,18 +21,18 @@
 
 ### 功能 2: 接口扩展（API）
 
-- [ ] T-003: `todo.create` 入参改 `{ title, category(default Personal), dueAt? }` 并落库；同步入参 Zod 校验 ~30min
-- [ ] T-004: 新增 `todo.update`（title/category/dueAt，`where` 校验 userId + returning 越权 NOT_FOUND）~30min
-- [ ] T-005: 新增 `todo.getToday`（按今日范围 + userId 过滤）与 `todo.getStats`（total/completed/percent 聚合）~30min
+- [x] T-003: `todo.create` 入参改 `{ title, category(default Personal), dueAt? }` 并落库；同步入参 Zod 校验 ~30min
+- [x] T-004: 新增 `todo.update`（title/category/dueAt，`where` 校验 userId + returning 越权 NOT_FOUND）~30min
+- [x] T-005: 新增 `todo.getToday`（按今日范围 + userId 过滤）与 `todo.getStats`（total/completed/percent 聚合）~30min
 
 ### 功能 3: 前端落库与展示
 
-- [ ] T-006: `BloomAddTaskSheet` 提交联动——`handleCreateTodo` 传 `{ title, category, dueAt }`，截止时间选项映射为 Date ~30min
-- [ ] T-007: 列表数据源改用 `getToday`，任务项 `meta` 用真实 category/dueAt；`BloomProgressCard` 接 `getStats` ~30min
+- [x] T-006: `BloomAddTaskSheet` 提交联动——`handleCreateTodo` 传 `{ title, category, dueAt }`，截止时间选项映射为 Date ~30min
+- [x] T-007: 列表数据源改用 `getToday`，任务项 `meta` 用真实 category/dueAt；`BloomProgressCard` 接 `getStats` ~30min
 
 ### 集成与测试
 
-- [ ] T-008: 联调核验 AC-001~AC-005（落库、默认分类、update、getToday、进度实时）~15min
+- [x] T-008: 联调核验 AC-001~AC-005（落库、默认分类、update、getToday、进度实时）~15min（已在真实 Neon Postgres 上核验通过：`npm run db:migrate` 落库后，用 A/B 两个用户经真实 tRPC procedure 跑通全部 15 项断言——AC-001 带 title/category/dueAt 落库、AC-002 默认分类 Personal、AC-003 本人 update 成功且 B 越权 update/delete 返回 NOT_FOUND、AC-004 getToday 命中今日+无截止任务且排除明日/他人、AC-005 getStats total/completed/percent 正确且 toggle 后实时变化）
 
 ## 依赖关系
 

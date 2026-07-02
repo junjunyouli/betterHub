@@ -17,7 +17,7 @@ import {
 	X,
 } from "lucide-react";
 import type { ComponentProps, FormEvent, ReactNode } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type BloomCategory = "Work" | "Personal" | "Home" | "Health";
 
@@ -45,9 +45,19 @@ interface BloomTaskItemProps {
 	task: BloomTask;
 }
 
+interface BloomEditableTask {
+	category: BloomCategory;
+	dueAt: Date | string | null;
+	id: number;
+	title: string;
+}
+
 interface BloomAddTaskSheetProps {
+	/** 传入待编辑任务则进入编辑模式并预填 title/category/dueAt；不传则为新增模式。 */
+	initialTask?: BloomEditableTask | null;
 	onClose: () => void;
 	onSubmit: (task: {
+		id?: number;
 		text: string;
 		category: BloomCategory;
 		dueAt: Date | null;
@@ -57,6 +67,17 @@ interface BloomAddTaskSheetProps {
 }
 
 type BloomDueOption = "today" | "tomorrow" | "custom" | null;
+
+/** 将 Date 格式化为 `datetime-local` input 所需的本地时间字符串。 */
+function toDatetimeLocalValue(date: Date): string {
+	const pad = (value: number) => String(value).padStart(2, "0");
+	const year = date.getFullYear();
+	const month = pad(date.getMonth() + 1);
+	const day = pad(date.getDate());
+	const hours = pad(date.getHours());
+	const minutes = pad(date.getMinutes());
+	return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
 
 /** 将截止时间选项映射为具体 Date（今天/明天取当日 23:59；自定义解析输入；未选返回 null）。 */
 function resolveDueAt(
@@ -334,6 +355,7 @@ export function BloomBottomNav() {
 }
 
 export function BloomAddTaskSheet({
+	initialTask,
 	onClose,
 	onSubmit,
 	open,
@@ -343,6 +365,40 @@ export function BloomAddTaskSheet({
 	const [category, setCategory] = useState<BloomCategory>("Work");
 	const [dueOption, setDueOption] = useState<BloomDueOption>(null);
 	const [customValue, setCustomValue] = useState("");
+	const [dueError, setDueError] = useState("");
+
+	const isEditMode = Boolean(initialTask);
+
+	// 每次打开弹窗时按当前模式重新初始化表单：编辑模式预填 title/category/dueAt，新增模式清空。
+	useEffect(() => {
+		if (!open) {
+			return;
+		}
+		setDueError("");
+		if (initialTask) {
+			setText(initialTask.title);
+			setCategory(initialTask.category);
+			if (initialTask.dueAt) {
+				const due = new Date(initialTask.dueAt);
+				if (Number.isNaN(due.getTime())) {
+					setDueOption(null);
+					setCustomValue("");
+				} else {
+					setDueOption("custom");
+					setCustomValue(toDatetimeLocalValue(due));
+				}
+			} else {
+				setDueOption(null);
+				setCustomValue("");
+			}
+		} else {
+			setText("");
+			setCategory("Work");
+			setDueOption(null);
+			setCustomValue("");
+		}
+		// biome-ignore lint/correctness/useExhaustiveDependencies: initialTask 的引用变化即代表要重新预填，无需拆分成基础类型依赖
+	}, [open, initialTask]);
 
 	if (!open) {
 		return null;
@@ -356,7 +412,17 @@ export function BloomAddTaskSheet({
 			return;
 		}
 
+		// 选了「选择时间」但值缺失/无法解析时，给出反馈而非静默丢弃截止时间。
+		if (dueOption === "custom") {
+			const parsed = customValue ? new Date(customValue) : null;
+			if (!parsed || Number.isNaN(parsed.getTime())) {
+				setDueError("请选择有效的截止时间，或取消“选择时间”。");
+				return;
+			}
+		}
+
 		onSubmit({
+			id: initialTask?.id,
 			text: trimmedText,
 			category,
 			dueAt: resolveDueAt(dueOption, customValue),
@@ -364,10 +430,17 @@ export function BloomAddTaskSheet({
 		setText("");
 		setDueOption(null);
 		setCustomValue("");
+		setDueError("");
 	};
 
 	const toggleDue = (option: Exclude<BloomDueOption, null>) => {
+		setDueError("");
 		setDueOption((current) => (current === option ? null : option));
+	};
+
+	const handleCustomChange = (value: string) => {
+		setDueError("");
+		setCustomValue(value);
 	};
 
 	return (
@@ -386,7 +459,9 @@ export function BloomAddTaskSheet({
 					<div className="h-1.5 w-12 rounded-full bg-[#bccac1]/50" />
 				</div>
 				<div className="mb-8 flex items-center justify-between">
-					<h2 className="font-semibold text-[22px] leading-7">新增任务</h2>
+					<h2 className="font-semibold text-[22px] leading-7">
+						{isEditMode ? "编辑任务" : "新增任务"}
+					</h2>
 					<button
 						aria-label="Close"
 						className="flex size-8 items-center justify-center rounded-full bg-[#e6e8e9] text-[#3d4943]"
@@ -463,12 +538,24 @@ export function BloomAddTaskSheet({
 						</div>
 						{dueOption === "custom" && (
 							<input
+								aria-invalid={dueError !== ""}
 								aria-label="选择截止时间"
-								className="mt-3 w-full rounded-xl border border-[#bccac1]/30 bg-[#f2f4f5] px-3 py-2 text-[#191c1d] text-[14px] leading-5 outline-none focus:border-[#006c4d]"
-								onChange={(event) => setCustomValue(event.target.value)}
+								className={cn(
+									"mt-3 w-full rounded-xl border bg-[#f2f4f5] px-3 py-2 text-[#191c1d] text-[14px] leading-5 outline-none focus:border-[#006c4d]",
+									dueError ? "border-red-500" : "border-[#bccac1]/30"
+								)}
+								onChange={(event) => handleCustomChange(event.target.value)}
 								type="datetime-local"
 								value={customValue}
 							/>
+						)}
+						{dueError && (
+							<p
+								className="mt-2 text-[12px] text-red-600 leading-4"
+								role="alert"
+							>
+								{dueError}
+							</p>
 						)}
 					</div>
 					<BloomPrimaryButton

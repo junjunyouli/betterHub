@@ -57,20 +57,10 @@ Resources:
   BetterHubApiFunction:
     Type: AWS::Serverless::Function
     Metadata:
-      BuildMethod: esbuild
-      BuildProperties:
-        Bundle: true
-        EntryPoints:
-          - apps/server/src/lambda.ts
-        External:
-          - pg-native
-        Format: cjs
-        Minify: true
-        Sourcemap: true
-        Target: es2022
+      BuildMethod: makefile
     Properties:
       CodeUri: .
-      Handler: apps/server/src/lambda.handler
+      Handler: index.handler
       Policies:
         - AWSLambdaBasicExecutionRole
       Events:

@@ -8,7 +8,7 @@
 | 序号 | feature                | 说明                                                       | 依赖 | 状态   |
 | ---- | ---------------------- | ---------------------------------------------------------- | ---- | ------ |
 | 1    | user-todo-auth         | Todo 绑定登录用户、protected procedures、路由保护、登录跳转 | -    | 待开发 |
-| 2    | todo-model-extension   | 扩展 Todo 模型（title/category/dueAt/时间戳）、落库与新增接口 | 1    | 待开发 |
+| 2    | todo-model-extension   | 扩展 Todo 模型（title/category/dueAt/时间戳）、落库与新增接口 | 1    | 完成   |
 | 3    | profile-and-filters    | Profile 页+退出登录、真实 session 用户名、分类/日期筛选、编辑 | 2    | 待开发 |
 
 **推荐执行顺序**：1 → 2 → 3（严格串行，后者依赖前者的数据模型与鉴权基础）。

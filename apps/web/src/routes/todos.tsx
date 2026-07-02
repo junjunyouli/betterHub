@@ -15,6 +15,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useState } from "react";
 
+import { useCurrentUser } from "@/hooks/use-current-user";
 import { authClient } from "@/lib/auth-client";
 import { trpc } from "@/utils/trpc";
 
@@ -47,6 +48,8 @@ export const Route = createFileRoute("/todos")({
 
 function TodosRoute() {
 	const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
+	const { user } = useCurrentUser();
+	const userName = user?.name ?? "User";
 
 	const todos = useQuery(trpc.todo.getToday.queryOptions());
 	const stats = useQuery(trpc.todo.getStats.queryOptions());
@@ -143,11 +146,11 @@ function TodosRoute() {
 
 	return (
 		<BloomPage>
-			<BloomHeader />
+			<BloomHeader userName={userName} />
 			<main className="mx-auto max-w-2xl px-5 pt-24 pb-36">
 				<section className="mb-8">
 					<h1 className="mb-1 font-bold text-[32px] leading-10">
-						Good morning, User!
+						Good morning, {userName}!
 					</h1>
 					<p className="text-[#3d4943] text-[18px] leading-7">
 						You're making great progress today.

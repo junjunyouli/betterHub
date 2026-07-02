@@ -3,6 +3,8 @@ set -euo pipefail
 
 ROLE_NAME="${ROLE_NAME:-betterhub-github-actions}"
 GITHUB_REPO="${GITHUB_REPO:-junjunyouli/betterHub}"
+# 信任范围精确到分支：只有该分支上的 workflow 能假设部署角色。
+# 不按 GitHub environment 放行——否则任何能对该 environment 运行的 workflow（含其他分支/PR）都能假设本角色，绕过仅主分支限制。
 GITHUB_BRANCH="${GITHUB_BRANCH:-main}"
 AWS_REGION="${AWS_REGION:-us-west-2}"
 OIDC_PROVIDER_HOST="token.actions.githubusercontent.com"
